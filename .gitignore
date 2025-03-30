@@ -1,0 +1,6 @@
+__pycache__
+.flake8
+.env
+docker-compose.yml
+Dockerfile
+.dockerignore
