@@ -32,16 +32,12 @@ async def auth_user_with_yandex(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Failed to authenticate with Yandex"
         )
-    try:
-        user = await get_current_user(
-            token=token_data.access_token,
-            db=db
-        )
 
-        await UserRepository.create_user(db, user.email)
-    except JWTError:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid token"
-        )
+    user = await get_current_user(
+        token=token_data.access_token,
+        db=db
+    )
+
+    await UserRepository.create_user(db, user.email)
+
     return token_data
