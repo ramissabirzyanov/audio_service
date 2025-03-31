@@ -2,7 +2,7 @@ from typing import Optional
 
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
-from sqlalchemy import update
+from sqlalchemy import update, delete
 from sqlalchemy.orm import selectinload
 
 from app.core.models.user import User
@@ -31,7 +31,7 @@ class UserRepository:
         await self.db.refresh(new_user)
         return new_user
     
-    async def update_user(self, user_id: int, user_data: dict) -> Optional[User]:
+    async def update_user(self, user_id: int, user_data: dict) -> None:
         await self.db.execute(
             update(User)
             .where(User.id == user_id)
@@ -45,3 +45,18 @@ class UserRepository:
     async def get_user_by_id(self, id: int) -> User:
         result = await self.db.execute(select(User).where(User.id == id))
         return result.scalars().first()
+    
+    async def make_super_user(self, id: int) -> None:
+        await self.db.execute(
+            update(User)
+            .where(User.id == id)
+            .values(is_superuser=True)
+        )
+        await self.db.commit()
+
+    async def delete_user(self, id: int) -> None:
+        await self.db.execute(
+            delete(User)
+            .where(User.id == id)
+        )
+        await self.db.commit()

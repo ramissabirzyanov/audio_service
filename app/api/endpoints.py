@@ -50,4 +50,4 @@ async def get_user_data(
         raise HTTPException(
             status_code=404,
             detail="User not found")
-    return user
+    return UserResponse.model_validate(user)
