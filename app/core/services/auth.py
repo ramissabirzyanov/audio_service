@@ -33,7 +33,7 @@ class AuthService:
         if not access_token:
             return None
         user_email = await self.client.get_user_email_by_yandex_token(
-            settings.INFO_URL,
+            settings.USER_INFO_URL,
             access_token
             )
         if not user_email:

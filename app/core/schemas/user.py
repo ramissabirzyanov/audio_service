@@ -6,13 +6,8 @@ from app.core.schemas.audio_file import AudioFileBase
 
 class UserBase(BaseModel):
     email: EmailStr
+    is_superuser: bool = False
     audio_files: list[AudioFileBase] = []
-
-class UserCreate(UserBase):
-    pass
-
-class UserUpdate(UserBase):
-    pass
 
 class UserResponse(UserBase):
     id: int
@@ -21,3 +16,11 @@ class UserResponse(UserBase):
     model_config = ConfigDict(
         from_attributes=True
     )
+
+class UserCreate(UserBase):
+    pass
+
+class UserUpdate(UserBase):
+    pass
+
+

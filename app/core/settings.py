@@ -1,4 +1,4 @@
-from pydantic_settings import BaseSettings
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
@@ -11,10 +11,13 @@ class Settings(BaseSettings):
     DATABASE_URL: str
     YANDEX_CLIENT_ID: str
     YANDEX_CLIENT_SECRET: str
-    TOKEN_URL = "https://oauth.yandex.ru/token"
-    INFO_URL = "https://login.yandex.ru/info"
+    TOKEN_URL: str = "https://oauth.yandex.ru/token"
+    USER_INFO_URL: str = "https://login.yandex.ru/info"
 
-    class Config:
-        env_file = ".env"
+    model_config = SettingsConfigDict(
+        env_file=".env", extra="allow"
+    )
+
+
 
 settings = Settings()
