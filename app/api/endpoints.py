@@ -1,7 +1,5 @@
 from fastapi import APIRouter
 from fastapi import Depends, HTTPException, status
-from jose import JWTError
-
 
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.schemas.user import UserCreate, UserResponse
@@ -37,7 +35,19 @@ async def auth_user_with_yandex(
         token=token_data.access_token,
         db=db
     )
-
     await UserRepository.create_user(db, user.email)
-
     return token_data
+
+
+@router.get('/{user_id}', response_model=UserResponse)
+async def get_user_data(
+    user_id: int,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    user = await UserRepository.get_user_by_id(db, user_id)
+    if user is None:
+        raise HTTPException(
+            status_code=404,
+            detail="User not found")
+    return user

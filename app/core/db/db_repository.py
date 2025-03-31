@@ -41,3 +41,7 @@ class UserRepository:
             )
         )
         await self.db.commit()
+
+    async def get_user_by_id(self, id: int) -> User:
+        result = await self.db.execute(select(User).where(User.id == id))
+        return result.scalars().first()
