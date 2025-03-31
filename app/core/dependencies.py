@@ -7,6 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.db.session import get_db
 from app.core.models.user import User
 
+
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/login/yandex")
 
 async def get_current_user(

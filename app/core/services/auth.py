@@ -20,3 +20,5 @@ class AuthService:
             settings.SECRET_KEY,
             algorithm=settings.ALGORITHM,
         )
+    def auth_by_yandex(self, code):
+        pass
