@@ -18,7 +18,8 @@ class UserResponse(UserBase):
     )
 
 class UserCreate(UserBase):
-    pass
+    code_from_yandex: str
+
 
 class UserUpdate(UserBase):
     pass

@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta, timezone
 
-from jose import jwt
+from jose import jwt, JWTError
 
 from app.core.settings import settings
 from app.core.services.yandex_api_service import YandexApiService
@@ -11,7 +11,7 @@ class AuthService:
     def __init__(self, client: YandexApiService):
         self.client = client
 
-    def create_jwt(self, data: dict) -> str:
+    def _create_jwt(self, data: dict) -> str:
         """Создаёт JWT-токен с указанными данными."""
         to_encode = data.copy()
         expire = datetime.now(timezone.utc) + timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
@@ -21,6 +21,17 @@ class AuthService:
             settings.SECRET_KEY,
             algorithm=settings.ALGORITHM,
         )
+    
+    def decode_jwt(self, jwt_token: Token):
+        try:
+            payload = jwt.decode(
+                jwt_token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM]
+            )
+            email = payload.get("sub")
+            return email
+        except JWTError:
+            return "Invalid token"
+
 
     async def auth_with_yandex(self, code: str):
         access_token = await self.client.get_yandex_token(
@@ -39,5 +50,5 @@ class AuthService:
         if not user_email:
             return None
 
-        jwt_token = self.create_jwt({"sub": user_email})
+        jwt_token = self._create_jwt({"sub": user_email})
         return Token(access_token=jwt_token, token_type="bearer")

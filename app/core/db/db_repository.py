@@ -41,4 +41,3 @@ class UserRepository:
             )
         )
         await self.db.commit()
-
