@@ -103,3 +103,19 @@ class AudioRepository:
             .where(AudioFile.id == audio_id)
         )
         await self.db.commit()
+
+    async def get_user_audio_files(
+        self, 
+        user_id: int,
+        limit: int = 50,
+        offset: int = 0
+    ) -> list[AudioFile]:
+        """Получает все аудиофайлы пользователя с пагинацией"""
+        result = await self.db.execute(
+            select(AudioFile)
+            .where(AudioFile.user_id == user_id)
+            .order_by(AudioFile.filename)
+            .limit(limit)
+            .offset(offset)
+        )
+        return result.scalars().all()
