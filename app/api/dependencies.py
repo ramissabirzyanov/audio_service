@@ -10,7 +10,7 @@ from app.core.services.yandex_api_service import YandexApiService
 from app.core.services.auth_service import AuthService
 
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="api/auth/login")
 
 
 async def get_current_user(
@@ -21,25 +21,25 @@ async def get_current_user(
         payload = jwt.decode(
             token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM]
         )
-        email = payload.get("sub")
-        
-        if email is None:
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Invalid token"
-            )
-    
-        user_repo = UserRepository(db)
-        user = await user_repo.get_user_by_email(email)
-        if user is None:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="User not found"
-            )
-        return user
-
     except JWTError:
-        raise JWTError("Could not validate data")
+        return "Could not validate data"
+
+    email = payload.get("sub")
+    
+    if email is None:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid token"
+        )
+
+    user_repo = UserRepository(db)
+    user = await user_repo.get_user_by_email(email)
+    if user is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User not found"
+        )
+    return user
 
 
 async def get_current_superuser(

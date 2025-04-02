@@ -2,7 +2,7 @@ from fastapi import APIRouter
 from fastapi import Depends, HTTPException, status
 
 from sqlalchemy.ext.asyncio import AsyncSession
-from app.core.schemas.user import UserCreate, UserResponse
+from app.core.schemas.user import UserLogin, UserResponse
 from app.core.schemas.token import Token
 from app.core.services.auth_service import AuthService
 from app.api.dependencies import get_current_superuser, get_current_user, get_auth_service
@@ -16,8 +16,7 @@ router = APIRouter()
 
 @router.post('/auth/login', response_model=Token)
 async def auth_user_with_yandex(
-    request: UserCreate,
-    db: AsyncSession = Depends(get_db),
+    request: UserLogin,
     auth_service: AuthService = Depends(get_auth_service)
 ):
     """
@@ -31,11 +30,6 @@ async def auth_user_with_yandex(
             detail="Failed to authenticate with Yandex"
         )
 
-    user = await get_current_user(
-        token=token_data.access_token,
-        db=db
-    )
-    await UserRepository.create_user(db, user.email)
     return token_data
 
 

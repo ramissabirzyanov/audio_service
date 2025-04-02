@@ -6,7 +6,7 @@ class AudioFileBase(BaseModel):
 
 
 class AudioRequest(AudioFileBase):
-    pass
+    audio_body_base64: str
 
 
 class AudioFileResponse(AudioFileBase):

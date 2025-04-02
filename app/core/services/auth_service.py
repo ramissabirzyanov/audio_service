@@ -1,15 +1,20 @@
 from datetime import datetime, timedelta, timezone
 
 from jose import jwt, JWTError
+from fastapi import Depends
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.settings import settings
 from app.core.services.yandex_api_service import YandexApiService
+from app.core.db.db_repository import UserRepository
+from app.core.db.session import get_db
 from app.core.schemas.token import Token
 
 
 class AuthService:
-    def __init__(self, client: YandexApiService):
+    def __init__(self, client: YandexApiService,  db: AsyncSession = Depends(get_db)):
         self.client = client
+        self.db = db
 
     def _create_jwt(self, data: dict) -> str:
         """Создаёт JWT-токен с указанными данными."""
@@ -47,8 +52,9 @@ class AuthService:
             settings.USER_INFO_URL,
             access_token
             )
+
         if not user_email:
-            return None
+            UserRepository.create_user(self.db, user_email)
 
         jwt_token = self._create_jwt({"sub": user_email})
         return Token(access_token=jwt_token, token_type="bearer")

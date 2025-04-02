@@ -17,7 +17,7 @@ class UserResponse(UserBase):
         from_attributes=True
     )
 
-class UserCreate(UserBase):
+class UserLogin(BaseModel):
     code_from_yandex: str
 
 
