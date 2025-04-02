@@ -1,7 +1,7 @@
 import aiohttp
 
 
-class YandexApiService:
+class YandexApiClient:
 
     async def _make_request(self, method: str, url: str, **kwargs):
         async with aiohttp.ClientSession() as session:

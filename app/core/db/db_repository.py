@@ -4,20 +4,22 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from sqlalchemy import update, delete
 from sqlalchemy.orm import selectinload
+from fastapi import Depends
 
+from app.core.db.session import get_db
 from app.core.models.user import User
 from app.core.models.audio_file import AudioFile
 
 
 class UserRepository:
-    def __init__(self, db: AsyncSession):
+    def __init__(self, db: AsyncSession=Depends(get_db)):
         self.db = db
 
     async def get_user_by_email(self, email: str) -> Optional[User]:
         result = await self.db.execute(select(User).where(User.email == email))
         return result.scalar_one_or_none()
     
-    async def get_user_with_audio(self, user_id: int) -> Optional[User]:
+    async def get_user_data(self, user_id: int) -> Optional[User]:
         result = await self.db.execute(
             select(User)
             .where(User.id == user_id)

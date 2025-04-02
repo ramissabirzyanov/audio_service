@@ -1,20 +1,16 @@
 from datetime import datetime, timedelta, timezone
 
 from jose import jwt, JWTError
-from fastapi import Depends
-from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.settings import settings
-from app.core.services.yandex_api_service import YandexApiService
-from app.core.db.db_repository import UserRepository
-from app.core.db.session import get_db
-from app.core.schemas.token import Token
+from app.core.services.yandex_api_service import YandexApiClient
+from app.core.services.user_service import UserService
+from app.core.schemas.token import Token, AuthResponse
 
 
 class AuthService:
-    def __init__(self, client: YandexApiService,  db: AsyncSession = Depends(get_db)):
+    def __init__(self, client: YandexApiClient) -> AuthResponse:
         self.client = client
-        self.db = db
 
     def _create_jwt(self, data: dict) -> str:
         """Создаёт JWT-токен с указанными данными."""
@@ -26,7 +22,7 @@ class AuthService:
             settings.SECRET_KEY,
             algorithm=settings.ALGORITHM,
         )
-    
+
     def decode_jwt(self, jwt_token: Token):
         try:
             payload = jwt.decode(
@@ -53,8 +49,12 @@ class AuthService:
             access_token
             )
 
-        if not user_email:
-            UserRepository.create_user(self.db, user_email)
+        user_service = UserService()
+        user = await user_service.get_or_create_user(user_email)  
 
         jwt_token = self._create_jwt({"sub": user_email})
-        return Token(access_token=jwt_token, token_type="bearer")
+        return AuthResponse(
+            access_token=jwt_token,
+            token_type="bearer",
+            user_email=user.email
+        )
