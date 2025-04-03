@@ -4,15 +4,13 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from sqlalchemy import update, delete
 from sqlalchemy.orm import selectinload
-from fastapi import Depends
 
-from app.core.db.session import get_db
 from app.core.models.user import User
 from app.core.models.audio_file import AudioFile
 
 
 class UserRepository:
-    def __init__(self, db: AsyncSession=Depends(get_db)):
+    def __init__(self, db: AsyncSession):
         self.db = db
 
     async def get_user_by_email(self, email: str) -> Optional[User]:
@@ -28,7 +26,8 @@ class UserRepository:
         return result.scalar_one_or_none()
     
     async def create_user(self, email: str) -> User:
-        new_user =  User(email=email)
+        new_user = User(email=email)
+        print(new_user)
         await self.db.add(new_user)
         await self.db.commit()
         await self.db.refresh(new_user)

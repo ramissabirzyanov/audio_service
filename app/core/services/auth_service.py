@@ -8,9 +8,11 @@ from app.core.services.user_service import UserService
 from app.core.schemas.token import Token, AuthResponse
 
 
+
 class AuthService:
-    def __init__(self, client: YandexApiClient) -> AuthResponse:
+    def __init__(self, client: YandexApiClient, user_service: UserService) -> AuthResponse:
         self.client = client
+        self.user_service = user_service
 
     def _create_jwt(self, data: dict) -> str:
         """Создаёт JWT-токен с указанными данными."""
@@ -34,7 +36,7 @@ class AuthService:
             return "Invalid token"
 
 
-    async def auth_with_yandex(self, code: str):
+    async def auth_with_yandex(self, code: str) -> AuthResponse:
         access_token = await self.client.get_yandex_token(
             settings.TOKEN_URL,
             code,
@@ -49,8 +51,7 @@ class AuthService:
             access_token
             )
 
-        user_service = UserService()
-        user = await user_service.get_or_create_user(user_email)  
+        user = await self.user_service.get_or_create_user(user_email)  
 
         jwt_token = self._create_jwt({"sub": user_email})
         return AuthResponse(

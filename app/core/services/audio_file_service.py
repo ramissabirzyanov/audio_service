@@ -4,10 +4,10 @@ import aiofiles
 from fastapi import Depends
 
 from app.core.db.db_repository import AudioRepository
-
+from app.core.db.session import get_db
 
 class AudioServive:
-    def __init__(self, audio_repo: AudioRepository = Depends()):
+    def __init__(self, audio_repo: AudioRepository = Depends(get_db)):
         self.audio_repo = audio_repo
 
     @staticmethod
