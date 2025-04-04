@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import datetime
 from pydantic import BaseModel, EmailStr, ConfigDict
 
 from app.core.schemas.audio_file import AudioFileBase
@@ -11,7 +11,7 @@ class UserBase(BaseModel):
 
 class UserResponse(UserBase):
     id: int
-    created_at: datetime = datetime.now(timezone.utc)
+    created_at: datetime
 
     model_config = ConfigDict(
         from_attributes=True

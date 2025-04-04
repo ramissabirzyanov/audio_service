@@ -60,5 +60,3 @@ async def get_current_superuser(
             "message": f"You don't have rights!"
         }
     return current_user
-
-
