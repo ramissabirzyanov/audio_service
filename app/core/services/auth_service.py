@@ -1,11 +1,11 @@
 from datetime import datetime, timedelta, timezone
 
-from jose import jwt, JWTError
+from jose import jwt
 
 from app.core.settings import settings
 from app.core.services.yandex_api_service import YandexApiClient
 from app.core.services.user_service import UserService
-from app.core.schemas.token import Token, AuthResponse
+from app.core.schemas.token import AuthResponse
 
 
 
@@ -24,17 +24,6 @@ class AuthService:
             settings.SECRET_KEY,
             algorithm=settings.ALGORITHM,
         )
-
-    def decode_jwt(self, jwt_token: Token):
-        try:
-            payload = jwt.decode(
-                jwt_token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM]
-            )
-            email = payload.get("sub")
-            return email
-        except JWTError:
-            return "Invalid token"
-
 
     async def auth_with_yandex(self, code: str) -> AuthResponse:
         access_token = await self.client.get_yandex_token(
@@ -55,7 +44,8 @@ class AuthService:
 
         jwt_token = self._create_jwt({"sub": user_email})
         return AuthResponse(
-            access_token=jwt_token,
+            my_token=jwt_token,
             token_type="bearer",
-            user_email=user.email
+            user_email=user.email,
+            user_id=user.id
         )

@@ -20,4 +20,4 @@ class User(Base):
         DateTime(timezone=True),
         default=lambda: datetime.now(timezone.utc)
     )
-    audio_files: Mapped[list["AudioFile"]] = relationship(back_populates="user")
+    audio_files: Mapped[list["AudioFile"]] = relationship(back_populates="user", lazy="selectin")

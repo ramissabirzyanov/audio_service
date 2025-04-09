@@ -6,14 +6,16 @@ from jose import jwt, JWTError
 from app.core.settings import settings
 from app.core.db.db_repository import UserRepository
 from sqlalchemy.ext.asyncio import AsyncSession
-from app.core.models.user import User
+from app.core.schemas.user import UserResponse
 from app.core.services.yandex_api_service import YandexApiClient
 from app.core.services.auth_service import AuthService
 from app.core.services.user_service import UserService
 from app.core.db.session import get_db
 
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="api/auth/login")
+oauth2_scheme = OAuth2PasswordBearer(
+    tokenUrl="api/auth/login",
+)
 
 
 def get_user_service(db: AsyncSession = Depends(get_db)) -> UserService:
@@ -31,7 +33,7 @@ def get_auth_service(
 async def get_current_user(
     user_service: UserService = Depends(get_user_service),
     token: str = Depends(oauth2_scheme)
-) -> Union[User, dict]:
+) -> Union[UserResponse, dict]:
     try:
         payload = jwt.decode(
             token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM]
@@ -51,9 +53,10 @@ async def get_current_user(
     return user
 
 
+
 async def get_current_superuser(
-    current_user: User = Depends(get_current_user)
-) -> User:
+    current_user: UserResponse = Depends(get_current_user)
+) -> UserResponse:
     if not current_user.is_superuser:
         return {
             "error": "PermissionError",
